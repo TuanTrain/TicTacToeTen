@@ -2,7 +2,7 @@
 #include <iostream>
 
 class board {
-public:
+private:
 	/* 1 | 2 | 3
 	 * ---------
 	 * 4 | 5 | 6
@@ -19,6 +19,8 @@ public:
 	char p8 = ' ';
 	char p9 = ' ';
 	char win = 0;
+
+public:
 	// adds X or O to position
 	bool set(const char piece, const char pos) 
 	{
@@ -138,6 +140,14 @@ public:
 			break;
 		};
 	}
+	void show()
+	{
+		printf("%c | %c | %c\n", p1, p2, p3);
+		printf("---------\n");
+		printf("%c | %c | %c\n", p4, p5, p6);
+		printf("---------\n");
+		printf("%c | %c | %c\n\n", p7, p8, p9);
+	}
 	bool checkwin(const char p) 
 	{ 
 		if ((p1 == p && p2 == p && p3 == p) || (p4 == p && p5 == p && p6 == p) ||
@@ -170,15 +180,6 @@ void example()
 	printf("7 | 8 | 9\n\n");
 }
 
-void show(board b)
-{
-	printf("%c | %c | %c\n", b.p1, b.p2, b.p3);
-	printf("---------\n");
-	printf("%c | %c | %c\n", b.p4, b.p5, b.p6);
-	printf("---------\n");
-	printf("%c | %c | %c\n\n", b.p7, b.p8, b.p9);
-}
-
 int main(void)
 {
 	// initialize instructions
@@ -204,7 +205,7 @@ int main(void)
 		} while (!ttt1.set(turn, move));
 
 		// places mark and displays
-		show(ttt1);
+		ttt1.show();
 
 		// flushes stdin for next player
 		
