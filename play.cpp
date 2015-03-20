@@ -3,157 +3,54 @@
 
 class board {
 private:
-	/* 1 | 2 | 3
+	/* 0 | 1 | 2
 	 * ---------
-	 * 4 | 5 | 6
+	 * 3 | 4 | 5
 	 * ---------
-	 * 7 | 8 | 9
+	 * 6 | 7 | 8
 	**/
-	char p1 = ' ';
-	char p2 = ' ';
-	char p3 = ' ';
-	char p4 = ' ';
-	char p5 = ' ';
-	char p6 = ' ';
-	char p7 = ' '; 
-	char p8 = ' ';
-	char p9 = ' ';
+	char pos[9];
 	char win = 0;
 
 public:
 	// adds X or O to position
-	bool set(const char piece, const char pos) 
+	bool set(const char piece, const int place) 
 	{
-		switch (pos)
+		printf("%d\n"), place;
+		if (place < 0 || place > 8)
 		{
-		case 1:
-			if (p1 != ' ')
-			{
-				printf("invalid move\n");
-				return false;
-			}
-			else
-			{
-				p1 = piece;
-				return true;
-			}
-			break;
-		case 2:
-			if (p2 != ' ')
-			{
-				printf("invalid move\n");
-				return false;
-			}
-			else
-			{
-				p2 = piece;
-				return true;
-			}
-			break;
-		case 3:
-			if (p3 != ' ')
-			{
-				printf("invalid move\n");
-				return false;
-			}
-			else
-			{
-				p3 = piece;
-				return true;
-			}
-			break;
-		case 4:
-			if (p4 != ' ')
-			{
-				printf("invalid move\n");
-				return false;
-			}
-			else
-			{
-				p4 = piece;
-				return true;
-			}
-			break;
-		case 5:
-			if (p5 != ' ')
-			{
-				printf("invalid move\n");
-				return false;
-			}
-			else
-			{
-				p5 = piece;
-				return true;
-			}
-			break;
-		case 6:
-			if (p6 != ' ')
-			{
-				printf("invalid move\n");
-				return false;
-			}
-			else
-			{
-				p6 = piece;
-				return true;
-			}
-			break;
-		case 7:
-			if (p7 != ' ')
-			{
-				printf("invalid move\n");
-				return false;
-			}
-			else
-			{
-				p7 = piece;
-				return true;
-			}
-			break;
-		case 8:
-			if (p8 != ' ')
-			{
-				printf("invalid move\n");
-				return false;
-			}
-			else
-			{
-				p8 = piece;
-				return true;
-			}
-			break;
-		case 9:
-			if (p9 != ' ')
-			{
-				printf("invalid move\n");
-				return false;
-			}
-			else
-			{
-				p9 = piece;
-				return true;
-			}
-			break;
-		default:
 			printf("invalid move\n");
 			return false;
-			break;
-		};
+		}
+		else if (pos[place] == NULL)
+		{
+			printf("invalid move\n");
+			return false;
+		}
+		else
+		{
+			pos[place] = piece;
+			return true;
+		}
 	}
-	void show()
+	void line1()
 	{
-		printf("%c | %c | %c\n", p1, p2, p3);
-		printf("---------\n");
-		printf("%c | %c | %c\n", p4, p5, p6);
-		printf("---------\n");
-		printf("%c | %c | %c\n\n", p7, p8, p9);
+		printf("%c | %c | %c\n", pos[0], pos[1], pos[2]);
+	}
+	void line2()
+	{
+		printf("%c | %c | %c\n", pos[3], pos[4], pos[5]);
+	}
+	void line3()
+	{
+		printf("%c | %c | %c\n", pos[6], pos[7], pos[8]);
 	}
 	bool checkwin(const char p) 
 	{ 
-		if ((p1 == p && p2 == p && p3 == p) || (p4 == p && p5 == p && p6 == p) ||
-			(p7 == p && p8 == p && p9 == p) || (p1 == p && p4 == p && p7 == p) ||
-			(p2 == p && p5 == p && p8 == p) || (p3 == p && p6 == p && p9 == p) ||
-			(p1 == p && p5 == p && p9 == p) || (p3 == p && p5 == p && p7 == p))
+		if ((pos[0] == p && pos[1] == p && pos[2] == p) || (pos[3] == p && pos[4] == p && pos[5] == p) ||
+			(pos[6] == p && pos[7] == p && pos[8] == p) || (pos[0] == p && pos[3] == p && pos[6] == p) ||
+			(pos[1] == p && pos[4] == p && pos[7] == p) || (pos[2] == p && pos[5] == p && pos[8] == p) ||
+			(pos[0] == p && pos[4] == p && pos[8] == p) || (pos[2] == p && pos[4] == p && pos[6] == p))
 		{
 			win = p;
 			return true;
@@ -162,8 +59,8 @@ public:
 	}
 	bool isspace()
 	{
-		if (p1 != ' ' && p2 != ' ' && p3 != ' ' && p4 != ' ' && p5 != ' ' && 
-			p6 != ' ' && p7 != ' ' && p8 != ' ' && p9 != ' ')
+		if (pos[0] && pos[1] && pos[2] && pos[3] && pos[4] &&
+			pos[5] && pos[6] && pos[7]  && pos[8] )
 			return false;
 		else
 			return true;
@@ -173,17 +70,17 @@ public:
 void example()
 {
 	printf("Positions are as follows:\n");
-	printf("1 | 2 | 3\n");
+	printf("0 | 1 | 2\n");
 	printf("---------\n");
-	printf("4 | 5 | 6\n");
+	printf("3 | 4 | 5\n");
 	printf("---------\n");
-	printf("7 | 8 | 9\n\n");
+	printf("6 | 7 | 8\n\n");
 }
 
 int main(void)
 {
 	// initialize instructions
-	board ttt1;
+	board b1;
 	example();
 
 	// prep for game
@@ -202,20 +99,21 @@ int main(void)
 			move = getchar();
 			move = move - '0';
 			fflush(stdin);
-		} while (!ttt1.set(turn, move));
+		} while (!b1.set(turn, move));
 
 		// places mark and displays
-		ttt1.show();
-
+		b1.line1();
+		b1.line2();
+		b1.line3();
 		// flushes stdin for next player
 		
 
 		// checks if winning move
-		if (ttt1.checkwin(turn))
+		if (b1.checkwin(turn))
 			winner = turn; 
 
 		// checks if space left to play
-		if (!ttt1.isspace())
+		if (!b1.isspace())
 			break;
 
 		// readies for next turn
