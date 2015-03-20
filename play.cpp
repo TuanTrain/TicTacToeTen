@@ -10,19 +10,32 @@ private:
 	 * 6 | 7 | 8
 	**/
 	char pos[9];
+	
+	
 	char win = 0;
 
 public:
-	// adds X or O to position
-	bool set(const char piece, const int place) 
+	void init(void)
 	{
-		printf("%d\n"), place;
+		pos[0] = ' ';
+		pos[1] = ' ';
+		pos[2] = ' ';
+		pos[3] = ' ';
+		pos[4] = ' ';
+		pos[5] = ' ';
+		pos[6] = ' ';
+		pos[7] = ' ';
+		pos[8] = ' ';
+	}
+	// adds X or O to position
+	bool set(char piece, int place) 
+	{
 		if (place < 0 || place > 8)
 		{
 			printf("invalid move\n");
 			return false;
 		}
-		else if (pos[place] == NULL)
+		else if (pos[place] != ' ')
 		{
 			printf("invalid move\n");
 			return false;
@@ -45,7 +58,7 @@ public:
 	{
 		printf("%c | %c | %c\n", pos[6], pos[7], pos[8]);
 	}
-	bool checkwin(const char p) 
+	bool checkwin(char p) 
 	{ 
 		if ((pos[0] == p && pos[1] == p && pos[2] == p) || (pos[3] == p && pos[4] == p && pos[5] == p) ||
 			(pos[6] == p && pos[7] == p && pos[8] == p) || (pos[0] == p && pos[3] == p && pos[6] == p) ||
@@ -59,8 +72,8 @@ public:
 	}
 	bool isspace()
 	{
-		if (pos[0] && pos[1] && pos[2] && pos[3] && pos[4] &&
-			pos[5] && pos[6] && pos[7]  && pos[8] )
+		if (pos[0] != ' ' && pos[1] != ' '  && pos[2] != ' '  && pos[3] != ' ' && pos[4] != ' '  &&
+			pos[5] != ' '  && pos[6] != ' '  && pos[7] != ' '  && pos[8] != ' ')
 			return false;
 		else
 			return true;
@@ -81,6 +94,7 @@ int main(void)
 {
 	// initialize instructions
 	board b1;
+	b1.init();
 	example();
 
 	// prep for game
