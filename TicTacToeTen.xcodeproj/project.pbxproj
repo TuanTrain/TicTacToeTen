@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		22D254831ABCBDD100F17A90 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22D254821ABCBDD100F17A90 /* main.cpp */; };
+		22D2548E1ABCCFA200F17A90 /* play.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22D2548D1ABCCFA200F17A90 /* play.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,7 +24,7 @@
 
 /* Begin PBXFileReference section */
 		22D2547F1ABCBDD100F17A90 /* TicTacToeTen */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TicTacToeTen; sourceTree = BUILT_PRODUCTS_DIR; };
-		22D254821ABCBDD100F17A90 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		22D2548D1ABCCFA200F17A90 /* play.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = play.cpp; path = ../play.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,7 +57,7 @@
 		22D254811ABCBDD100F17A90 /* TicTacToeTen */ = {
 			isa = PBXGroup;
 			children = (
-				22D254821ABCBDD100F17A90 /* main.cpp */,
+				22D2548D1ABCCFA200F17A90 /* play.cpp */,
 			);
 			path = TicTacToeTen;
 			sourceTree = "<group>";
@@ -118,7 +118,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22D254831ABCBDD100F17A90 /* main.cpp in Sources */,
+				22D2548E1ABCCFA200F17A90 /* play.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -232,6 +232,7 @@
 				22D254881ABCBDD100F17A90 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
