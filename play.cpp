@@ -160,65 +160,6 @@ int getmove()
 	return (int) move;
 }
 
-int getUserInput(board boards[], board large, char player, int active)
-{
-    int next = active;
-    
-    if (active < 0)
-    {
-        printEntireBoard(boards, active);
-        printf("Choose a board:\n");
-        do
-        {
-            next = getmove();
-            printf("%d\n", next);
-        } while (large.exists(next));
-    }
-    
-    printEntireBoard(boards, next);
-    
-    int move;
-    
-    do
-    {
-        move = getmove();
-    } while (!boards[next].set(player, move));
-    
-    return move;
-}
-
-pair<int, int> computerMove(board boards[], board large, char player, int active)
-{
-    int next = active;
-    
-    if (active < 0)
-    {
-        printEntireBoard(boards, active);
-        printf("Choose a board:\n");
-        do
-        {
-            next = rand() % 9;
-            printf("%d\n", next);
-        } while (large.exists(next));
-        
-        printf("The computer chose board %d\n", next);
-    }
-    
-    
-    printEntireBoard(boards, next);
-    
-    int move;
-    
-    do
-    {
-        move = rand() % 9;
-    } while (!boards[next].set(player, move));
-    
-    printf("The computer chose square %d\n", move);
-    
-    return {move, next};
-}
-
 pair<char, int> readInput(board boards[])
 {
     string STRING;
@@ -279,10 +220,80 @@ void makeLargeBoard(board boards[], board & large)
     }
 }
 
+/*
+ * AI Functions
+ *
+ * Return (move,next) where move is the square chosen within the 3x3 
+ * and next is the board that the current move was played on. It will be 
+ * the same as the parameter active, unless a choice of boards was given.
+*/
 
-int main(void)
+pair<int, int> computerEvan(board boards[], board large, char player, int active);
+
+pair<int, int> computerAntuan(board boards[], board large, char player, int active);
+
+pair<int, int> getUserInput(board boards[], board large, char player, int active)
 {
-	board b[9];
+    int next = active;
+    
+    if (active < 0)
+    {
+        printEntireBoard(boards, active);
+        printf("Choose a board:\n");
+        do
+        {
+            next = getmove();
+            printf("%d\n", next);
+        } while (large.exists(next));
+    }
+    
+    printEntireBoard(boards, next);
+    
+    int move;
+    
+    do
+    {
+        move = getmove();
+    } while (!boards[next].set(player, move));
+    
+    return {move, next};
+}
+
+pair<int, int> randomComputerMove(board boards[], board large, char player, int active)
+{
+    int next = active;
+    
+    if (active < 0)
+    {
+        printEntireBoard(boards, active);
+        printf("Choose a board:\n");
+        do
+        {
+            next = rand() % 9;
+            printf("%d\n", next);
+        } while (large.exists(next));
+        
+        printf("The computer chose board %d\n", next);
+    }
+    
+    
+    printEntireBoard(boards, next);
+    
+    int move;
+    
+    do
+    {
+        move = rand() % 9;
+    } while (!boards[next].set(player, move));
+    
+    printf("The computer chose square %d\n", move);
+    
+    return {move, next};
+}
+
+char playGame(pair<int,int>(*alg1)(board[], board, char, int), pair<int,int>(*alg2)(board[], board, char, int))
+{
+    board b[9];
     
     puts("Reading Input");
     
@@ -292,20 +303,20 @@ int main(void)
     makeLargeBoard(b, large);
     
     large.printGame();
-
-	// show numbers to play
-	example();
-
-	// prep for game
-	char winner = 0;
-	char turn = turn_active.first;
+    
+    // show numbers to play
+    example();
+    
+    // prep for game
+    char winner = 0;
+    char turn = turn_active.first;
     int move;
-
-	// choose next board;
-	int next = turn_active.second;
-	
-	while (true)
-	{
+    
+    // choose next board;
+    int next = turn_active.second;
+    
+    while (true)
+    {
         srand((int)time(NULL));
         usleep(5000);
         
@@ -313,69 +324,71 @@ int main(void)
         
         if (turn == 'X')
         {
-            move_next = computerMove(b, large, turn, next);
+            move_next = (*alg1)(b, large, turn, next);
         }
         else
         {
-            move_next = computerMove(b, large, turn, next);
+            move_next = (*alg2)(b, large, turn, next);
         }
         
         move = move_next.first;
         next = move_next.second;
-
-		// places mark and displays
+        
+        // places mark and displays
         
         printf("Next is %d\n", next);
-
-		// checks if winning move
-		if (b[next].checkwin(turn))
-		{
-			large.set(turn, next);
-			if (large.checkwin(turn))
-			{
-				winner = turn;
-				break;
-			}
-		}
+        
+        // checks if winning move
+        if (b[next].checkwin(turn))
+        {
+            large.set(turn, next);
+            if (large.checkwin(turn))
+            {
+                winner = turn;
+                break;
+            }
+        }
         
         if (! b[next].isSpace())
             large.set('E', next);
         
         puts("large is:");
         large.printGame();
-		
-		// checks if space left to play
-		if (!large.isSpace())
-			break;
-		// readies for next turn
-		if (turn == 'X')
-			turn = 'O';
-		else
-			turn = 'X';
+        
+        // checks if space left to play
+        if (!large.isSpace())
+            break;
+        // readies for next turn
+        if (turn == 'X')
+            turn = 'O';
+        else
+            turn = 'X';
+        
+        // changes to next board
+        if (large.exists(move))
+        {
+            next = -1;
+        }
+        else
+        {
+            next = move;
+        }
+        
+    }
+    
+    // if winner exists
+    if (winner == 'X' || winner == 'O')
+    {
+        return winner;
+    }
+    // otherwise, tie
+    return 'T';
 
-		// changes to next board
-		if (large.exists(move))
-		{
-			next = -1;
-		}
-		else
-		{
-			next = move;
-		}
-		
-	}
+}
 
-	// if winner exists
-	if (winner == 'X' || winner == 'O')
-	{
-		printf("%c wins!\n", winner);
-	}
-	// otherwise, tie
-	else
-	{
-		printf("Tie!\n");
-	}
-
-
-	return 0;
+int main(void)
+{
+    pair<int,int> (*player1)(board[], board, char, int) = &randomComputerMove;
+    pair<int,int> (*player2)(board[], board, char, int) = &randomComputerMove;
+    printf("Game Result: %c\n", playGame(player1, player2));
 }
