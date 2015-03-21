@@ -9,14 +9,22 @@ private:
 	 * 3 | 4 | 5
 	 * ---------
 	 * 6 | 7 | 8
-	**/
-    char pos[9] = {' ' , ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '};
+	 **/
+	char pos[9];
 	char win = 0;
-    int spaces = 9;
+	int spaces = 9;
 
 public:
+	// to get around VS error
+	board(void)
+	{
+        for (int i = 0; i < 9; i++)
+        {
+            pos[i] = ' ';
+        }
+	}
 	// adds X or O to position
-	bool set(char piece, int place) 
+	bool set(char piece, int place)
 	{
 		if (place < 0 || place > 8)
 		{
@@ -31,7 +39,7 @@ public:
 		else
 		{
 			pos[place] = piece;
-            spaces--;
+			spaces--;
 			return true;
 		}
 	}
@@ -50,26 +58,22 @@ public:
 	}
     
     // checks to see if the player with the symbol p has won
+	bool exists(int p)
+	{
+        return (pos[p] != ' ');
+
+	}
+    
 	bool checkwin(char p) 
-	{ 
-        bool board_p[9] = {false, false, false, false, false, false, false, false, false};
-        
-        for (int i = 0; i < 9; i++)
-        {
-            if (pos[i] == p)
-            {
-                board_p[i] = true;
-            }
-        }
-        
-        if ((board_p[0] && board_p[1] && board_p[2]) ||
-            (board_p[3] && board_p[4] && board_p[5]) ||
-            (board_p[6] && board_p[7] && board_p[8]) ||
-            (board_p[0] && board_p[3] && board_p[6]) ||
-            (board_p[1] && board_p[4] && board_p[7]) ||
-            (board_p[2] && board_p[5] && board_p[8]) ||
-            (board_p[0] && board_p[4] && board_p[8]) ||
-            (board_p[2] && board_p[4] && board_p[6]) )
+	{         
+		if ((pos[0] == p && pos[1] == p && pos[2] == p) || 
+			(pos[3] == p && pos[4] == p && pos[5] == p) ||
+			(pos[6] == p && pos[7] == p && pos[8] == p) || 
+			(pos[0] == p && pos[3] == p && pos[6] == p) ||
+			(pos[1] == p && pos[4] == p && pos[7] == p) || 
+			(pos[2] == p && pos[5] == p && pos[8] == p) ||
+			(pos[0] == p && pos[4] == p && pos[8] == p) || 
+			(pos[2] == p && pos[4] == p && pos[6] == p))
 		{
 			win = p;
 			return true;
@@ -78,7 +82,7 @@ public:
         return false;
 	}
     
-	bool isspace()
+	bool isSpace()
 	{
         return spaces != 0;
 	}
@@ -101,9 +105,16 @@ void example()
 	printf("6 | 7 | 8\n\n");
 }
 
+
 // prints a particular row of the large 9x9 board, given the active square
 void printRow(board boards[], int row, int active, bool all)
 {
+    /*
+    0 1 2
+    3 4 5
+    6 7 8
+    */
+    
     int group_row = row / 3;
     int active_row = active / 3;
     int active_col = active % 3;
@@ -130,72 +141,108 @@ void printEntireBoard(board boards[], int active_number)
     
 }
 
+int getmove()
+{
+	int move;
+	// gets input, makes it usable
+	move = getchar();
+	move = move - '0';
+
+	// flushing the buffer
+	char ch;
+	while ((ch = std::cin.get()) != '\n' && ch != EOF);
+
+	return (int) move;
+}
+
 int main(void)
 {
-    board boards[9];
+	board large;
     
-    // initialize instructions
-    board * b1 = &boards[3];
-    
-    // prep for game
-    char winner = 0;
-    char turn = 'X';
-    
-    while (true)
-    {
-        // next moev
-        printf("%c 's turn\n", turn);
-        char move;
-        do
-        {
-            // gets input, makes it usable
-            move = getchar();
-            move = move - '0';
-            
-            // flushing the buffer
-            char ch;
-            while ((ch = std::cin.get()) != '\n' && ch != EOF);
-            
-        } while (!b1->set(turn, (int)move));
+	board b[9];
+
+	// show numbers to play
+	example();
+
+	// prep for game
+	char winner = 0;
+	char turn = 'X';
+
+	// choose next board;
+	int next = -1;
+	
+	while (true)
+	{
+        printEntireBoard(b, next);
         
-        // places mark and displays
-        b1->printGame();
+		if (next < 0)
+		{
+			printf("Choose a board:\n");
+			do
+			{
+				next = getmove();
+				printf("%d\n", next);
+			} while (large.exists(next));
+		}
         
-        puts("\n");
+        printEntireBoard(b, next);
+        puts("");
         
-        // second argument of 0...8 means that particular 3x3 is active; -1 means all are active
-        printEntireBoard(boards, 3);
-        
-        // checks if winning move
-        if (b1->checkwin(turn))
-        {
-            winner = turn;
-            break;
-        }
-        
-        // checks if space left to play
-        if (!b1->isspace())
-            break;
-        
-        // readies for next turn
-        if (turn == 'X')
-            turn = 'O';
-        else
-            turn = 'X';
-    }
-    
-    // if winner exists
-    if (winner == 'X' || winner == 'O')
-    {
-        printf("%c wins!\n", winner);
-    }
-    
-    // otherwise, tie
-    else
-    {
-        printf("Tie!");
-    }
-    
-    
-    return 0;
+		// next move
+		printf("%c 's turn\n", turn);
+		
+        int move;
+
+		do 
+		{
+			move = getmove();
+		} while (!b[next].set(turn, move));
+		
+		// places mark and displays
+
+		// checks if winning move
+		if (b[next].checkwin(turn))
+		{
+			large.set(turn, next);
+			if (large.checkwin(turn))
+			{
+				winner = turn;
+				break;
+			}
+		}
+		
+		// checks if space left to play
+		if (!large.isSpace())
+			break;
+		// readies for next turn
+		if (turn == 'X')
+			turn = 'O';
+		else
+			turn = 'X';
+
+		// changes to next board
+		if (large.exists(next))
+		{
+			next = -1;
+		}
+		else
+		{
+			next = move;
+		}
+		
+	}
+
+	// if winner exists
+	if (winner == 'X' || winner == 'O')
+	{
+		printf("%c wins!\n", winner);
+	}
+	// otherwise, tie
+	else
+	{
+		printf("Tie!\n");
+	}
+
+
+	return 0;
 }
