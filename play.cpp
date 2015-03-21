@@ -1,7 +1,11 @@
 #include <cstdio>
 #include <iostream>
 #include <cstring>
+#include <fstream>
 #include <unistd.h>
+#include <stdlib.h>
+
+using namespace std;
 
 class board {
 private:
@@ -183,7 +187,7 @@ int getUserInput(board boards[], board large, char player, int active)
     return move;
 }
 
-int computerMove(board boards[], board large, char player, int active)
+pair<int, int> computerMove(board boards[], board large, char player, int active)
 {
     int next = active;
     
@@ -212,42 +216,116 @@ int computerMove(board boards[], board large, char player, int active)
     
     printf("The computer chose square %d\n", move);
     
-    return move;
+    return {move, next};
 }
+
+pair<char, int> readInput(board boards[])
+{
+    string STRING;
+    ifstream infile;
+    infile.open ("setupboard.txt");
+    
+    int line_number = -1;
+    char turn = 'X';
+    int move = -1;
+    
+    while(!infile.eof()) // To get you all the lines.
+    {
+        getline(infile,STRING); // Saves the line in STRING.
+        
+        const char * this_line = STRING.c_str();
+        
+        if (line_number == -1)
+        {
+            turn = this_line[0];
+            move = atoi(& this_line[2]);
+        }
+        else
+        {
+            for (int pos = 0; pos < 9; pos++)
+            {
+                if (this_line[pos] != '.')
+                {
+                    boards[line_number / 3 * 3 + pos / 3].set(this_line[pos], line_number % 3 * 3 + pos % 3);
+                }
+            }
+        }
+        
+        cout<<STRING<<endl; // Prints our STRING.
+        
+        line_number++;
+    }
+    printEntireBoard(boards, move);
+    
+    pair<char,int> output = {turn, move};
+    
+    
+    cout << "Turn is: " << turn << endl;
+    cout << "Active is: " << move << endl;
+    
+    infile.close();
+    
+    return output;
+}
+
+void makeLargeBoard(board boards[], board & large)
+{
+    for (int i = 0; i < 9; i++)
+    {
+        if (boards[i].checkwin('O'))
+            large.set('O', i);
+        else if (boards[i].checkwin('X'))
+            large.set('X', i);
+    }
+}
+
 
 int main(void)
 {
-	board large;
-    
 	board b[9];
+    
+    puts("Reading Input");
+    
+    pair<char, int> turn_active = readInput(b);
+    
+    board large;
+    makeLargeBoard(b, large);
+    
+    large.printGame();
 
 	// show numbers to play
 	example();
 
 	// prep for game
 	char winner = 0;
-	char turn = 'X';
+	char turn = turn_active.first;
+    int move;
 
 	// choose next board;
-	int next = -1;
+	int next = turn_active.second;
 	
 	while (true)
 	{
-        srand(time(NULL));
-        usleep(500);
+        srand((int)time(NULL));
+        usleep(5000);
         
-        int move;
+        pair<int,int> move_next;
         
         if (turn == 'X')
         {
-            move = computerMove(b, large, turn, next);
+            move_next = computerMove(b, large, turn, next);
         }
         else
         {
-            move = computerMove(b, large, turn, next);
+            move_next = computerMove(b, large, turn, next);
         }
+        
+        move = move_next.first;
+        next = move_next.second;
 
 		// places mark and displays
+        
+        printf("Next is %d\n", next);
 
 		// checks if winning move
 		if (b[next].checkwin(turn))
@@ -259,6 +337,12 @@ int main(void)
 				break;
 			}
 		}
+        
+        if (! b[next].isSpace())
+            large.set('E', next);
+        
+        puts("large is:");
+        large.printGame();
 		
 		// checks if space left to play
 		if (!large.isSpace())
