@@ -226,6 +226,8 @@ void makeLargeBoard(board boards[], board & large)
  * Return (move,next) where move is the square chosen within the 3x3 
  * and next is the board that the current move was played on. It will be 
  * the same as the parameter active, unless a choice of boards was given.
+ *
+ * Don't forget to modify the corresponding board in boards too!! 
 */
 
 pair<int, int> computerEvan(board boards[], board large, char player, int active);
