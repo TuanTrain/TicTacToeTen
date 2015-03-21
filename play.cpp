@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <iostream>
 #include <cstring>
+#include <unistd.h>
 
 class board {
 private:
@@ -155,6 +156,65 @@ int getmove()
 	return (int) move;
 }
 
+int getUserInput(board boards[], board large, char player, int active)
+{
+    int next = active;
+    
+    if (active < 0)
+    {
+        printEntireBoard(boards, active);
+        printf("Choose a board:\n");
+        do
+        {
+            next = getmove();
+            printf("%d\n", next);
+        } while (large.exists(next));
+    }
+    
+    printEntireBoard(boards, next);
+    
+    int move;
+    
+    do
+    {
+        move = getmove();
+    } while (!boards[next].set(player, move));
+    
+    return move;
+}
+
+int computerMove(board boards[], board large, char player, int active)
+{
+    int next = active;
+    
+    if (active < 0)
+    {
+        printEntireBoard(boards, active);
+        printf("Choose a board:\n");
+        do
+        {
+            next = rand() % 9;
+            printf("%d\n", next);
+        } while (large.exists(next));
+        
+        printf("The computer chose board %d\n", next);
+    }
+    
+    
+    printEntireBoard(boards, next);
+    
+    int move;
+    
+    do
+    {
+        move = rand() % 9;
+    } while (!boards[next].set(player, move));
+    
+    printf("The computer chose square %d\n", move);
+    
+    return move;
+}
+
 int main(void)
 {
 	board large;
@@ -173,31 +233,20 @@ int main(void)
 	
 	while (true)
 	{
-        printEntireBoard(b, next);
+        srand(time(NULL));
+        usleep(500);
         
-		if (next < 0)
-		{
-			printf("Choose a board:\n");
-			do
-			{
-				next = getmove();
-				printf("%d\n", next);
-			} while (large.exists(next));
-		}
-        
-        printEntireBoard(b, next);
-        puts("");
-        
-		// next move
-		printf("%c 's turn\n", turn);
-		
         int move;
+        
+        if (turn == 'X')
+        {
+            move = computerMove(b, large, turn, next);
+        }
+        else
+        {
+            move = computerMove(b, large, turn, next);
+        }
 
-		do 
-		{
-			move = getmove();
-		} while (!b[next].set(turn, move));
-		
 		// places mark and displays
 
 		// checks if winning move
@@ -221,7 +270,7 @@ int main(void)
 			turn = 'X';
 
 		// changes to next board
-		if (large.exists(next))
+		if (large.exists(move))
 		{
 			next = -1;
 		}
