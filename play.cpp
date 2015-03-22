@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+
 using namespace std;
 
 class board {
@@ -48,6 +49,27 @@ public:
 			return true;
 		}
 	}
+
+	
+	bool remove(char piece, int place)
+	{
+		if (place < 0 || place > 8)
+		{
+			printf("error in remove\n");
+			return false;
+		}
+		else if (pos[place] = ' ')
+		{
+			printf("removing nonexistant piece\n");
+			return false;
+		}
+		else
+		{
+			pos[place] = ' ';
+			spaces++;
+			return true;
+		}
+	}
     
     // prints out a particular line of a board, using [] if available, and () if not
 	char * getLine(int num, bool available)
@@ -62,13 +84,19 @@ public:
         return buffer;
 	}
     
-    // checks to see if the player with the symbol p has won
+    
 	bool exists(int p)
 	{
         return (pos[p] != ' ');
 
 	}
+
+	char piece(int p)
+	{
+		return (pos[p]);
+	}
     
+	// checks to see if the player with the symbol p has won
 	bool checkwin(char p) 
 	{         
 		if ((pos[0] == p && pos[1] == p && pos[2] == p) || 
@@ -232,7 +260,105 @@ void makeLargeBoard(board boards[], board & large)
 
 pair<int, int> computerEvan(board boards[], board large, char player, int active);
 
-pair<int, int> computerAntuan(board boards[], board large, char player, int active);
+// b: board, p: piece (X or O)
+void getWin(board b, char p, int points[])
+{
+	for (int i = 0; i < 9; i++)
+	{
+		if (!b.exists)
+		{
+			b.set(p,i);
+			if (b.checkwin(p))
+			{
+				points[i]++;
+			}
+			b.remove(p, i);
+		}
+	}
+}
+
+void checkamt(board b, char p, int points[])
+{
+	for (int i = 0; i < 9; i++)
+	{
+		if (!b.exists(i))
+		{
+			b.set(p, i);
+			if (b.checkwin(p))
+			{
+				points[i]++;
+			}
+			b.remove(p, i);
+		}
+	}
+}
+
+// will balance winning boards, blocking wins, and sending opponent to board with least of opponent's pieces
+pair<int, int> computerAntuan(board boards[], board large, char player, int active)
+{
+	
+
+	if (active < 0)
+	{
+		printEntireBoard(boards, active);
+		do
+		{
+			active = rand() % 9;
+			printf("%d\n", active);
+		} while (large.exists(active));
+
+		printf("AIntuan randomly chose board %d\n", active);
+	}
+
+	int points[9] = { 10, 10, 10, 10, 10, 10, 10, 10, 10 };
+
+	printEntireBoard(boards, active);
+
+	// disqualifies taken spots
+	for (int i = 0; i < 9; i++)
+	{
+		if (boards[active].exists(i))
+		{
+			points[i] = -10;
+		}
+	}
+
+	// adds point if move wins the board
+	getWin(boards[active], player, points);
+
+	char other = (player == 'X') ? 'O': 'X';
+	// adds point if move prevents opponent from winning board
+	getWin(boards[active], other, points);
+
+	// adds points for every spot without opposing piece
+	for (int i = 0; i < 9; i++)
+	{
+		if (points[i] > 0)
+		{
+			for (int j = 0; j < 9; j++)
+			{
+				if (boards[i].piece(j) == other)
+				{
+					points[i]--;
+				}
+			}
+		}
+	}
+
+	int move;
+	int max = 0;
+	for (int i = 0; i < 9; i++)
+	{
+		if (points[i] > max)
+		{
+			move = i;
+		}
+	}
+
+	printf("AIntuan chose square %d\n", move);
+
+	return{ move, active };
+}
 
 pair<int, int> getUserInput(board boards[], board large, char player, int active)
 {
