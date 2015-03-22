@@ -7,7 +7,7 @@
 
 using namespace std;
 
-class board {
+class Board {
 private:
 	/* 0 | 1 | 2
 	 * ---------
@@ -20,14 +20,24 @@ private:
 	int spaces = 9;
 
 public:
-	// to get around VS error
-	board(void)
+	// constructor
+	Board(void)
 	{
         for (int i = 0; i < 9; i++)
         {
             pos[i] = ' ';
         }
 	}
+    
+    // copy constructor
+    Board(volatile Board& other )
+    {
+        win = other.win;
+        spaces = other.spaces;
+        for (int i = 0; i < 9; i++)
+            pos[i] = other.pos[i];
+    }
+    
 	// adds X or O to position
 	bool set(char piece, int place)
 	{
@@ -52,7 +62,7 @@ public:
     // prints out a particular line of a board, using [] if available, and () if not
 	char * getLine(int num, bool available)
 	{
-        char * buffer = new char[12];
+        char * buffer = new char[18];
         std::string format;
         
         if (available) format = "[%c] [%c] [%c]";
@@ -98,6 +108,18 @@ public:
         for (int i = 0; i < 3; i++)
             printf("%s\n",getLine(i, false));
     }
+    
+    int hasWin(char p)
+    {
+        for (int i = 0; i < 9; i++)
+        {
+            Board new_board = *this;
+            if (new_board.set(p, i) && new_board.checkwin(p))
+                return i;
+        }
+        
+        return -1;
+    }
 };
 
 void example()
@@ -112,7 +134,7 @@ void example()
 
 
 // prints a particular row of the large 9x9 board, given the active square
-void printRow(board boards[], int row, int active, bool all)
+void printRow(Board boards[], int row, int active, bool all)
 {
     /*
     0 1 2
@@ -125,7 +147,7 @@ void printRow(board boards[], int row, int active, bool all)
     int active_col = active % 3;
     
     char buffer[100];
-    snprintf(buffer, 50, "%s  |  %s  |  %s\n",
+    snprintf(buffer, 50, "%s  |  %s  |  %s \n",
              boards[3 * group_row + 0].getLine(row % 3, all || ((group_row == active_row) && (active_col == 0))),
              boards[3 * group_row + 1].getLine(row % 3, all || ((group_row == active_row) && (active_col == 1))),
              boards[3 * group_row + 2].getLine(row % 3, all || ((group_row == active_row) && (active_col == 2))));
@@ -133,7 +155,7 @@ void printRow(board boards[], int row, int active, bool all)
 }
 
 // prints the entire 9x9 board
-void printEntireBoard(board boards[], int active_number)
+void printEntireBoard(Board boards[], int active_number)
 {
     for (int i = 0; i < 9; i++)
     {
@@ -145,6 +167,8 @@ void printEntireBoard(board boards[], int active_number)
     }
     
 }
+
+pair<int, int> randomComputerMove(Board boards[], Board large, char player, int active);
 
 int getmove()
 {
@@ -160,11 +184,11 @@ int getmove()
 	return (int) move;
 }
 
-pair<char, int> readInput(board boards[])
+pair<char, int> readInput(Board boards[], char * file_name)
 {
     string STRING;
     ifstream infile;
-    infile.open ("setupboard.txt");
+    infile.open (file_name);
     
     int line_number = -1;
     char turn = 'X';
@@ -200,7 +224,6 @@ pair<char, int> readInput(board boards[])
     
     pair<char,int> output = {turn, move};
     
-    
     cout << "Turn is: " << turn << endl;
     cout << "Active is: " << move << endl;
     
@@ -209,7 +232,7 @@ pair<char, int> readInput(board boards[])
     return output;
 }
 
-void makeLargeBoard(board boards[], board & large)
+void makeLargeBoard(Board boards[], Board & large)
 {
     for (int i = 0; i < 9; i++)
     {
@@ -227,14 +250,59 @@ void makeLargeBoard(board boards[], board & large)
  * and next is the board that the current move was played on. It will be 
  * the same as the parameter active, unless a choice of boards was given.
  *
- * Don't forget to modify the corresponding board in boards too!! 
+ * Don't forget to modify the corresponding board in boards too!!
 */
 
-pair<int, int> computerEvan(board boards[], board large, char player, int active);
+pair<int, int> computerEvan(Board boards[], Board large, char player, int active)
+{
+    if (active -1)
+    {
+        for (int i = 0; i < 9; i++)
+        {
+            int choice = boards[i].hasWin(player);
+            if (choice != -1)
+            {
+                boards[i].set(player, choice);
+                return {i, choice};
+            }
+        }
+        
+        return randomComputerMove(boards, large, player, active);
+    }
+    
+    int choice = boards[active].hasWin(player);
+    if ( choice != -1)
+    {
+        boards[active].set(player, choice);
+    }
+    
+    int safe_moves[10];
+    int counter = 0;
+    
+    for (int i = 0; i < 9; i++)
+    {
+        if (!boards[active].exists(i) && !boards[i].hasWin((player == 'X') ? 'O' : 'X'))
+        {
+            safe_moves[counter] = i;
+            counter++;
+        }
+    }
+    
+    if (counter == 0)
+    {
+        return {0, active};
+    }
+    
+    int random_move = safe_moves[rand() % counter];
+    
+    boards[active].set(player, random_move);
+    
+    return {random_move, active};
+}
 
-pair<int, int> computerAntuan(board boards[], board large, char player, int active);
+pair<int, int> computerAntuan(Board boards[], Board large, char player, int active);
 
-pair<int, int> getUserInput(board boards[], board large, char player, int active)
+pair<int, int> getUserInput(Board boards[], Board large, char player, int active)
 {
     int next = active;
     
@@ -261,21 +329,17 @@ pair<int, int> getUserInput(board boards[], board large, char player, int active
     return {move, next};
 }
 
-pair<int, int> randomComputerMove(board boards[], board large, char player, int active)
+pair<int, int> randomComputerMove(Board boards[], Board large, char player, int active)
 {
     int next = active;
     
     if (active < 0)
     {
-        printEntireBoard(boards, active);
-        printf("Choose a board:\n");
         do
         {
             next = rand() % 9;
             printf("%d\n", next);
         } while (large.exists(next));
-        
-        printf("The computer chose board %d\n", next);
     }
     
     
@@ -288,20 +352,19 @@ pair<int, int> randomComputerMove(board boards[], board large, char player, int 
         move = rand() % 9;
     } while (!boards[next].set(player, move));
     
-    printf("The computer chose square %d\n", move);
-    
     return {move, next};
 }
 
-char playGame(pair<int,int>(*alg1)(board[], board, char, int), pair<int,int>(*alg2)(board[], board, char, int))
+char playGame(pair<int,int>(*alg1)(Board[], Board, char, int),
+              pair<int,int>(*alg2)(Board[], Board, char, int))
 {
-    board b[9];
+    Board b[9];
     
     puts("Reading Input");
     
-    pair<char, int> turn_active = readInput(b);
+    pair<char, int> turn_active = readInput(b, "emptyboard.txt");
     
-    board large;
+    Board large;
     makeLargeBoard(b, large);
     
     large.printGame();
@@ -336,9 +399,8 @@ char playGame(pair<int,int>(*alg1)(board[], board, char, int), pair<int,int>(*al
         move = move_next.first;
         next = move_next.second;
         
-        // places mark and displays
-        
-        printf("Next is %d\n", next);
+        printf("Move is %d, Next is %d\n", move, next);
+        printEntireBoard(b, next);
         
         // checks if winning move
         if (b[next].checkwin(turn))
@@ -390,7 +452,7 @@ char playGame(pair<int,int>(*alg1)(board[], board, char, int), pair<int,int>(*al
 
 int main(void)
 {
-    pair<int,int> (*player1)(board[], board, char, int) = &randomComputerMove;
-    pair<int,int> (*player2)(board[], board, char, int) = &randomComputerMove;
+    pair<int,int> (*player1)(Board[], Board, char, int) = &computerEvan;
+    pair<int,int> (*player2)(Board[], Board, char, int) = &randomComputerMove;
     printf("Game Result: %c\n", playGame(player1, player2));
 }
