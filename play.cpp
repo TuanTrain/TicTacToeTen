@@ -508,7 +508,7 @@ char playGame(pair<int,int>(*alg1)(Board[], Board, char, int),
 
 int main(void)
 {
-    pair<int,int> (*player1)(Board[], Board, char, int) = &computerAntuan;
+    pair<int,int> (*player1)(Board[], Board, char, int) = &randomComputerMove;
     pair<int,int> (*player2)(Board[], Board, char, int) = &randomComputerMove;
     
     char results[10];
@@ -516,5 +516,5 @@ int main(void)
     for (int i = 0; i < 1; i++)
         results[i] = playGame(player1, player2);
     for (int i = 0; i < 1; i++)
-        printf("%c\n", results[i]);
+        printf("Winner: %c\n", results[i]);
 }
